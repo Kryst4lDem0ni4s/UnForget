@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../gamification/presentation/cloud_widget.dart';
+import '../../tasks/presentation/add_task_dialog.dart';
 
 class AddTaskButton extends ConsumerWidget {
   final bool isMobile;
@@ -12,7 +13,10 @@ class AddTaskButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (isMobile) {
       return FloatingActionButton(
-        onPressed: () => context.push('/add-task'),
+        onPressed: () => showDialog(
+          context: context, 
+          builder: (context) => const AddTaskDialog()
+        ),
         tooltip: 'Add Task',
         backgroundColor: Colors.white,
         child: const SizedBox(
@@ -31,7 +35,10 @@ class AddTaskButton extends ConsumerWidget {
         shadowColor: Theme.of(context).primaryColor.withOpacity(0.2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: InkWell(
-          onTap: () => context.push('/add-task'),
+          onTap: () => showDialog(
+            context: context,
+            builder: (context) => const AddTaskDialog(),
+          ),
           borderRadius: BorderRadius.circular(24),
           child: Padding(
             padding: const EdgeInsets.all(40.0),
@@ -59,7 +66,11 @@ class AddTaskButton extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon( // Modern button
-                    onPressed: () => context.push('/add-task'),
+                FilledButton.icon( // Modern button
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => const AddTaskDialog(),
+                    ),
                     icon: const Icon(Icons.add),
                     label: const Text("Create Entry"),
                 )

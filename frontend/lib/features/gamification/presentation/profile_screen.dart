@@ -2,11 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../tasks/data/task_repository.dart';
+import 'widgets/adventurer_avatar.dart';
+
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Real Data Connection
+    final tasksAsync = ref.watch(taskListProvider);
+    
+    // Gamification Logic
+    final completedTasks = tasksAsync.valueOrNull?.where((t) => t.status == 'completed').length ?? 0;
+    final totalTasks = tasksAsync.valueOrNull?.length ?? 0;
+    
+    final xp = completedTasks * 10;
+    final level = (xp / 50).floor() + 1; // Level up every 50 XP (5 tasks)
+    
+    String title = "Novice Walker";
+    if (level > 2) title = "Cloud Surfer";
+    if (level > 5) title = "Sky Captain";
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ADVENTURER'),
@@ -30,22 +47,35 @@ class ProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  Image.asset(
-                    'assets/ui/pixel_character_kit.png',
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.contain,
+                   // Sliced Avatar based on Level (changes frame every 2 levels)
+                  SlicedSprite(
+                    frameIndex: level % 4, // Cycle through 4 frames
+                    totalFrames: 4,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "CLOUD WALKER",
-                    style: GoogleFonts.pressStart2p(fontSize: 18),
+                    title,
+                    style: GoogleFonts.pressStart2p(fontSize: 14), // Smaller to fit
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Level 5 Planner",
+                    "Level $level Planner",
                     style: GoogleFonts.outfit(fontSize: 16, color: Colors.grey),
                   ),
+                  const SizedBox(height: 12),
+                  // XP Bar
+                  SizedBox(
+                    width: 150,
+                    child: LinearProgressIndicator(
+                      value: (xp % 50) / 50, // Progress to next level
+                      backgroundColor: Colors.grey.shade200,
+                      color: Colors.orange,
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text("${xp % 50} / 50 XP", style: const TextStyle(fontSize: 10, color: Colors.grey))
                 ],
               ),
             ),
@@ -56,40 +86,12 @@ class ProfileScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _StatTile(label: "XP", value: "1,250", color: Colors.purple),
-                  _StatTile(label: "STREAK", value: "7 Days", color: Colors.orange),
-                  _StatTile(label: "TASKS", value: "42", color: Colors.blue),
+                  _StatTile(label: "TOTAL XP", value: "$xp", color: Colors.purple),
+                  _StatTile(label: "LOG", value: "$completedTasks/$totalTasks", color: Colors.orange),
+                  _StatTile(label: "RANK", value: "$level", color: Colors.blue),
                 ],
               ),
             ),
-            const Spacer(),
-            // Loot / Equipment Grid (Visual Only)
-            Text(
-              "INVENTORY",
-              style: GoogleFonts.pressStart2p(fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 100,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 60,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Icon(Icons.cloud_outlined, color: Colors.grey.shade400),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 40),
           ],
         ),
       ),

@@ -24,27 +24,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final currentCloudState = cloudStateAsync.valueOrNull ?? CloudState.clear;
     final isSyncing = ref.watch(syncStatusProvider);
     
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SkyPlan'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.read(syncStatusProvider.notifier).startSync();
-              Future.delayed(const Duration(seconds: 3), () {
-                ref.read(syncStatusProvider.notifier).endSync();
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      drawer: const _AppDrawer(),
-      body: LayoutBuilder(
+    // Return only the body content, Scaffold is provided by ShellRoute
+    return LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 800) {
             return _buildDesktopLayout(currentCloudState);
@@ -52,29 +33,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             return _buildMobileLayout(currentCloudState);
           }
         },
-      ),
-      floatingActionButton: LayoutBuilder(
-        builder: (context, constraints) {
-          // Only show FAB on mobile
-          if (constraints.maxWidth <= 800) {
-            return const AddTaskButton(isMobile: true);
-          }
-          return const SizedBox.shrink();
-        },
-      ),
-      bottomNavigationBar: isSyncing 
-        ? Padding(
-            padding: const EdgeInsets.only(bottom: 80.0),
-            child: Center(child: SyncVisualizer(isSyncing: isSyncing)),
-          )
-        : null,
     );
   }
 
   Widget _buildDesktopLayout(CloudState state) {
-    return Row(
+    return Column(
       children: [
-        // Main Area (Gamification)
+        // Top: Large Gamification Cloud
         Expanded(
           flex: 2,
           child: Center(
@@ -91,14 +56,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
              ),
           ),
         ),
-        // Side Panel (Quick Add Task)
+        // Center: Interactive Add Task (Small Cloud)
         Expanded(
           flex: 1,
-          child: Container(
-            color: Colors.white.withOpacity(0.5),
-            padding: const EdgeInsets.all(24),
-            child: const Center(
-              child: AddTaskButton(isMobile: false),
+          child: Center(
+            child: Column(
+              children: [
+                const Text("Add a new cloud", style: TextStyle(color: Colors.grey)),
+                const SizedBox(height: 16),
+                // Reusing AddTaskButton, simplified
+                const AddTaskButton(isMobile: true), // Using mobile version (FAB style) as "Small Cloud"
+              ],
             ),
           ),
         ),
@@ -107,90 +75,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildMobileLayout(CloudState state) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CloudWidget(state: state, size: 200),
-          const SizedBox(height: 32),
-          Text(
-            "Your Day is Clear",
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Tap the cloud to plan",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        // Top: Large Cloud
+        CloudWidget(state: state, size: 250),
+        const SizedBox(height: 20),
+        Text(
+           state == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
+           style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        
+        const Spacer(),
+        
+        // Center: Interactive Add Task
+        const Text("Tap to add task", style: TextStyle(color: Colors.grey)),
+        const SizedBox(height: 16),
+        const AddTaskButton(isMobile: true),
+        
+        const Spacer(),
+      ],
     );
   }
 }
 
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer();
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Icon(Icons.cloud, color: Colors.white, size: 48),
-                const SizedBox(height: 10),
-                Text('SkyPlan Menu', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.dashboard_outlined),
-            title: const Text('Home (Cloud View)'),
-            onTap: () {
-               context.pop(); // Close drawer
-               context.go('/');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_month_outlined),
-            title: const Text('Calendar Schedule'),
-            onTap: () {
-               context.pop();
-               context.go('/calendar');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.check_circle_outline),
-            title: const Text('To-Do List'),
-            onTap: () {
-               context.pop();
-               context.go('/tasks');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: const Text('Adventurer Profile'),
-            onTap: () {
-               context.pop();
-               context.go('/profile');
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Settings'),
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
