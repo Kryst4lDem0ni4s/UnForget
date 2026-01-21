@@ -16,23 +16,21 @@ class CloudWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Color cloudBaseColor;
     Color cloudShadowColor;
-    IconData iconData;
+    bool isStorm = false;
     
     switch (state) {
       case CloudState.clear:
         cloudBaseColor = Colors.white;
         cloudShadowColor = Colors.blue.shade100;
-        iconData = Icons.cloud_queue; 
         break;
       case CloudState.cloudy:
         cloudBaseColor = const Color(0xFFEEEEEE);
         cloudShadowColor = Colors.grey.shade300;
-        iconData = Icons.cloud;
         break;
       case CloudState.storm:
         cloudBaseColor = const Color(0xFF78909C);
         cloudShadowColor = const Color(0xFF455A64);
-        iconData = Icons.thunderstorm;
+        isStorm = true;
         break;
     }
 
@@ -42,18 +40,13 @@ class CloudWidget extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // "Pixel" effect simulated with stacked icons or just clean icon for "Sleek" req
-          // User asked for "Sleek" AND "Pixelated". 
-          // I'll stick to a very clean, large White Cloud icon with soft shadow (Sleek).
-          // Pixelation requires custom assets.
-          
-          Image.asset(
-            state == CloudState.storm 
-              ? 'assets/ui/cloud_storm.png' // Fallback to existing if pixel version not split
-              : 'assets/ui/pixel_character_kit.png', 
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
+          CustomPaint(
+            size: Size(size, size * 0.6),
+            painter: PixelCloudPainter(
+              color: cloudBaseColor,
+              shadowColor: cloudShadowColor,
+              isStorm: isStorm,
+            ),
           ),
           
           // Status Text Overlay (Gamification)
@@ -61,16 +54,102 @@ class CloudWidget extends StatelessWidget {
              Positioned(
                bottom: size * 0.1,
                child: Container(
-                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                  decoration: BoxDecoration(
-                   color: Colors.red.withOpacity(0.8),
+                   color: Colors.red.withOpacity(0.9),
                    borderRadius: BorderRadius.circular(4),
+                   boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
                  ),
-                 child: const Text("OVERLOAD", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                 child: const Text("OVERLOAD", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                ),
              )
         ],
       ),
     );
   }
+}
+
+class PixelCloudPainter extends CustomPainter {
+  final Color color;
+  final Color shadowColor;
+  final bool isStorm;
+
+  PixelCloudPainter({required this.color, required this.shadowColor, this.isStorm = false});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    
+    // Grid size 16x10
+    final double pixelSize = size.width / 16; 
+
+    // Define a simple pixel cloud shape (1 = fill)
+    final shape = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    ];
+    
+    // Draw Shadow (Offset +4, +4)
+    paint.color = shadowColor;
+    for(int y=0; y<shape.length; y++) {
+        for(int x=0; x<shape[y].length; x++) {
+            if(shape[y][x] == 1) {
+                canvas.drawRect(
+                    Rect.fromLTWH((x * pixelSize) + 4, (y * pixelSize) + 4, pixelSize, pixelSize), 
+                    paint
+                );
+            }
+        }
+    }
+
+    // Draw Cloud Body
+    paint.color = color;
+    for(int y=0; y<shape.length; y++) {
+        for(int x=0; x<shape[y].length; x++) {
+            if(shape[y][x] == 1) {
+                canvas.drawRect(
+                    Rect.fromLTWH(x * pixelSize, y * pixelSize, pixelSize, pixelSize), 
+                    paint
+                );
+            }
+        }
+    }
+    
+    // Draw Thunder if storm
+    if (isStorm) {
+        paint.color = const Color(0xFFFFEB3B); // Bright Yellow
+        // Simple Bolt (centered)
+        final bolt = [
+            [0,0,0,0,0,0,0,1,0,0,0,0],
+            [0,0,0,0,0,0,1,1,0,0,0,0],
+            [0,0,0,0,0,1,1,0,0,0,0,0],
+            [0,0,0,0,1,1,1,0,0,0,0,0],
+            [0,0,0,0,0,0,1,0,0,0,0,0],
+            [0,0,0,0,0,1,0,0,0,0,0,0],
+        ];
+        
+        // Render bolt on top
+         for(int y=0; y<bolt.length; y++) {
+            for(int x=0; x<bolt[y].length; x++) {
+                if(bolt[y][x] == 1) {
+                    canvas.drawRect(
+                        Rect.fromLTWH((x+4) * pixelSize, (y+4) * pixelSize, pixelSize, pixelSize), 
+                        paint
+                    );
+                }
+            }
+        }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

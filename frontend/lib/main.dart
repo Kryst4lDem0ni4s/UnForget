@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
 
 void main() {
-  runApp(const AIPlannerApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+  runApp(const ProviderScope(child: AIPlannerApp()));
 }
 
-class AIPlannerApp extends StatelessWidget {
+class AIPlannerApp extends ConsumerWidget {
   const AIPlannerApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    
+    return MaterialApp.router(
       title: 'SkyPlan',
       theme: AppTheme.light(),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('SkyPlan')),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.cloud, size: 100, color: Colors.blue),
-              SizedBox(height: 20),
-              Text('Welcome to SkyPlan', style: TextStyle(fontSize: 24)),
-            ],
-          ),
-        ),
-      ),
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
   }

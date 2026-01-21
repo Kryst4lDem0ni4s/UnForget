@@ -6,16 +6,21 @@ part of 'ai_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$aiServiceHash() => r'm3n4o5p6';
+String _$aiServiceHash() => r'4ee9f4ade600a4e53c8de9e840b3fb052d4b384b';
 
+/// See also [aiService].
 @ProviderFor(aiService)
 final aiServiceProvider = AutoDisposeProvider<AiService>.internal(
   aiService,
   name: r'aiServiceProvider',
-  debugGetCreateSourceHash: _$aiServiceHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$aiServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef AiServiceRef = AutoDisposeProviderRef<AiService>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

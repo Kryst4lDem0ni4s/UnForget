@@ -2,10 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../../gamification/presentation/cloud_widget.dart';
 import '../data/ai_service.dart';
-import '../../calendar/presentation/smart_calendar.dart';
+import '../../calendar/presentation/simple_calendar_temp.dart';
 
 class PlanReviewScreen extends ConsumerStatefulWidget {
   final String threadId;
@@ -20,7 +19,6 @@ class _PlanReviewScreenState extends ConsumerState<PlanReviewScreen> {
   Map<String, dynamic>? _analysisState;
   bool _isLoading = true;
   int _selectedOptionIndex = 0;
-  final CalendarController _calendarController = CalendarController();
 
   @override
   void initState() {
@@ -71,40 +69,6 @@ class _PlanReviewScreenState extends ConsumerState<PlanReviewScreen> {
     }
   }
 
-  List<Appointment> _getAppointments() {
-    if (_isLoading || _analysisState == null) return [];
-    
-    final options = _analysisState!['scheduling_options'] as List;
-    if (options.isEmpty) return [];
-
-    final selected = options[_selectedOptionIndex];
-    
-    // Parse times
-    // Backend format: "2026-01-22T10:00:00"
-    final start = DateTime.parse(selected['start_time']);
-    final end = DateTime.parse(selected['end_time']);
-    
-    // Focus calendar on this date
-    // Note: Calling .displayDate in build can cause loops, but setting once is okay.
-    // Ideally use controller.displayDate = start; in setState.
-    
-    return [
-      Appointment(
-        startTime: start,
-        endTime: end,
-        subject: "New Task (Proposed)",
-        color: const Color(0xFF81D4FA), // Sky Blue
-        isAllDay: false,
-      ),
-      // Mock existing block for context
-      Appointment(
-        startTime: start.subtract(const Duration(hours: 2)),
-        endTime: start.subtract(const Duration(hours: 1)),
-        subject: "Existing Meeting",
-        color: Colors.grey,
-      )
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,13 +112,9 @@ class _PlanReviewScreenState extends ConsumerState<PlanReviewScreen> {
                ],
              ),
           ),
-          
-          // 2. Calendar View
-          Expanded(
-            child: SmartCalendar(
-              appointments: _getAppointments(),
-              controller: _calendarController,
-            ),
+          // 2. Calendar View (Simplified)
+          const Expanded(
+            child: SimpleCalendar(),
           ),
           
           // 3. Option Selector (Carousel)
@@ -188,7 +148,6 @@ class _PlanReviewScreenState extends ConsumerState<PlanReviewScreen> {
                            setState(() {
                              _selectedOptionIndex = index;
                            });
-                           _calendarController.displayDate = start; 
                         },
                         child: Container(
                           width: 140,

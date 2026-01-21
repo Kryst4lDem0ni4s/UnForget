@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../gamification/presentation/cloud_widget.dart';
 import '../../gamification/data/gamification_provider.dart';
-import '../presentation/widgets/sync_visualizer.dart';
+import 'widgets/sync_visualizer.dart';
+import 'widgets/add_task_button.dart';
 import '../../../core/api/sync_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -51,11 +52,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/add-task'), // "Small cloud" action
-        tooltip: 'Add Task',
-        backgroundColor: Colors.white,
-        child: const Icon(Icons.cloud_upload_outlined, color: Colors.blue),
+      floatingActionButton: LayoutBuilder(
+        builder: (context, constraints) {
+          // Only show FAB on mobile
+          if (constraints.maxWidth <= 800) {
+            return const AddTaskButton(isMobile: true);
+          }
+          return const SizedBox.shrink();
+        },
       ),
       bottomNavigationBar: isSyncing 
         ? Padding(
@@ -92,19 +96,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: Container(
             color: Colors.white.withOpacity(0.5),
             padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Quick Plan", style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () => context.go('/add-task'),
-                  icon: const Icon(Icons.add),
-                  label: const Text("New Task Entry"),
-                ),
-                const Spacer(),
-                // List preview?
-              ],
+            child: const Center(
+              child: AddTaskButton(isMobile: false),
             ),
           ),
         ),
