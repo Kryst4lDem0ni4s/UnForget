@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ai_planner/core/theme/app_theme.dart';
-import 'package:ai_planner/core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
-  runApp(const ProviderScope(child: AIPlannerApp()));
+  runApp(const AIPlannerApp());
 }
 
-class AIPlannerApp extends ConsumerWidget {
+class AIPlannerApp extends StatelessWidget {
   const AIPlannerApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Expecting routerProvider from generated code
-    final routerConfig = ref.watch(routerProvider);
-
-    return MaterialApp.router(
-      title: 'AI Planner',
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SkyPlan',
       theme: AppTheme.light(),
-      routerConfig: routerConfig,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('SkyPlan')),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud, size: 100, color: Colors.blue),
+              SizedBox(height: 20),
+              Text('Welcome to SkyPlan', style: TextStyle(fontSize: 24)),
+            ],
+          ),
+        ),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }

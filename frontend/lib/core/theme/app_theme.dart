@@ -10,13 +10,17 @@ class AppTheme {
   static const Color charcoal = Color(0xFF37474F);     // Text color (Blue-ish dark grey)
   
   static TextTheme _buildTextTheme() {
-    return GoogleFonts.outfitTextTheme().apply(
+    return GoogleFonts.outfitTextTheme().copyWith(
+      displayLarge: GoogleFonts.pressStart2p(color: charcoal),
+      displayMedium: GoogleFonts.pressStart2p(color: charcoal),
+      displaySmall: GoogleFonts.pressStart2p(color: charcoal),
+      headlineLarge: GoogleFonts.pressStart2p(color: charcoal),
+      headlineMedium: GoogleFonts.pressStart2p(color: charcoal),
+      headlineSmall: GoogleFonts.pressStart2p(color: charcoal),
+    ).apply(
       displayColor: charcoal,
       bodyColor: charcoal,
     );
-     // Note: If user insisted on pixel font for ALL text, we'd use GoogleFonts.pressStart2p()
-     // But "Sleek and minimal" suggests Outfit is safer for body text.
-     // We can use Pixel font for Headers if desired.
   }
 
   static ThemeData light() {

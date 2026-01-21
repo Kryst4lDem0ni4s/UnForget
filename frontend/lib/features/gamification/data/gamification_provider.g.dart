@@ -6,16 +6,16 @@ part of 'gamification_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cloudStateHash() => r'cloudStateHash';
+String _$cloudStateHash() => r'u1v2w3x4';
 
-/// See also [cloudState].
 @ProviderFor(cloudState)
 final cloudStateProvider = AutoDisposeFutureProvider<CloudState>.internal(
   cloudState,
   name: r'cloudStateProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product') ? null : _$cloudStateHash,
+  debugGetCreateSourceHash: _$cloudStateHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
 typedef CloudStateRef = AutoDisposeFutureProviderRef<CloudState>;

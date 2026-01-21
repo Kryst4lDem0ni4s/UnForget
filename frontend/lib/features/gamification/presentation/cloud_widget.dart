@@ -47,17 +47,13 @@ class CloudWidget extends StatelessWidget {
           // I'll stick to a very clean, large White Cloud icon with soft shadow (Sleek).
           // Pixelation requires custom assets.
           
-          Icon(
-            iconData,
-            size: size,
-            color: cloudBaseColor,
-            shadows: [
-              Shadow(
-                blurRadius: 20,
-                color: cloudShadowColor,
-                offset: const Offset(5, 5),
-              ),
-            ],
+          Image.asset(
+            state == CloudState.storm 
+              ? 'assets/ui/cloud_storm.png' // Fallback to existing if pixel version not split
+              : 'assets/ui/pixel_character_kit.png', 
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
           ),
           
           // Status Text Overlay (Gamification)
