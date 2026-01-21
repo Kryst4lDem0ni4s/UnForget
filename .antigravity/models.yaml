@@ -1,0 +1,13 @@
+# Model Configuration
+default: gemini-3-pro  # Free tier, generous rate limits
+
+model-routing:
+  solution-architect: claude-sonnet-4.5  # Best for system design
+  backend-infra: gemini-3-pro  # Fast code generation
+  ai-pipeline: gpt-4-turbo  # Complex reasoning for LangGraph
+  flutter-frontend: gemini-3-pro  # UI code generation
+  integration-testing: gemini-3-pro  # Test generation
+  security: claude-sonnet-4.5  # Security analysis
+  cicd-pipeline: gemini-3-pro  # YAML/config generation
+  infra-provisioning: gemini-3-pro  # Terraform generation
+  observability: gemini-3-pro  # Dashboard configs
