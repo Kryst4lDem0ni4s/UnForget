@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../gamification/presentation/cloud_widget.dart';
 import '../../gamification/data/gamification_provider.dart';
+import '../presentation/widgets/sync_visualizer.dart';
+import '../../../core/api/sync_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -18,11 +20,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final cloudStateAsync = ref.watch(cloudStateProvider);
     final cloudState = cloudStateAsync.valueOrNull ?? CloudState.clear;
+    final isSyncing = ref.watch(syncStatusProvider);
     
     return Scaffold(
       appBar: AppBar(
         title: const Text('SkyPlan'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              ref.read(syncStatusProvider.notifier).startSync();
+              Future.delayed(const Duration(seconds: 3), () {
+                ref.read(syncStatusProvider.notifier).endSync();
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
@@ -45,6 +57,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         backgroundColor: Colors.white,
         child: const Icon(Icons.cloud_upload_outlined, color: Colors.blue),
       ),
+      bottomNavigationBar: isSyncing 
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 80.0),
+            child: Center(child: SyncVisualizer(isSyncing: isSyncing)),
+          )
+        : null,
     );
   }
 
@@ -161,6 +179,14 @@ class _AppDrawer extends StatelessWidget {
             onTap: () {
                context.pop();
                context.go('/tasks');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text('Adventurer Profile'),
+            onTap: () {
+               context.pop();
+               context.go('/profile');
             },
           ),
           const Divider(),

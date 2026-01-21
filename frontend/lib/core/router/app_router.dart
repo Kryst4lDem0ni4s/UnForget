@@ -6,6 +6,7 @@ import '../../features/tasks/presentation/add_task_screen.dart';
 import '../../features/tasks/presentation/task_list_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
 import '../../features/ai_assistant/presentation/plan_review_screen.dart';
+import '../../features/gamification/presentation/profile_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -43,6 +44,10 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/tasks',
         builder: (context, state) => const TaskListScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );
