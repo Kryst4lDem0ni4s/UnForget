@@ -20,7 +20,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final cloudStateAsync = ref.watch(cloudStateProvider);
-    final cloudState = cloudStateAsync.valueOrNull ?? CloudState.clear;
+    // Rename to avoid conflict with the imported 'cloudState' function
+    final currentCloudState = cloudStateAsync.valueOrNull ?? CloudState.clear;
     final isSyncing = ref.watch(syncStatusProvider);
     
     return Scaffold(
@@ -46,9 +47,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 800) {
-            return _buildDesktopLayout();
+            return _buildDesktopLayout(currentCloudState);
           } else {
-            return _buildMobileLayout();
+            return _buildMobileLayout(currentCloudState);
           }
         },
       ),
@@ -70,7 +71,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildDesktopLayout() {
+  Widget _buildDesktopLayout(CloudState state) {
     return Row(
       children: [
         // Main Area (Gamification)
@@ -80,10 +81,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
              child: Column(
                mainAxisAlignment: MainAxisAlignment.center,
                children: [
-                 CloudWidget(state: cloudState, size: 300),
+                 CloudWidget(state: state, size: 300),
                  const SizedBox(height: 20),
                  Text(
-                   cloudState == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
+                   state == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
                    style: Theme.of(context).textTheme.headlineMedium,
                  ),
                ],
@@ -105,12 +106,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(CloudState state) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CloudWidget(state: cloudState, size: 200),
+          CloudWidget(state: state, size: 200),
           const SizedBox(height: 32),
           Text(
             "Your Day is Clear",
