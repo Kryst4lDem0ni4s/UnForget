@@ -81,7 +81,7 @@ class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
             
             // AI Info Card
             Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(

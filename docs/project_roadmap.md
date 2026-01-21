@@ -58,9 +58,9 @@
 **Goal**: Seamless User Experience.
 
 ### flutter-frontend
-- [x] **Suggestion Cards**: UI for the 3 AI options (Accept/Reject).
-- [ ] **Gamification Logic**: Link Task Completion -> Cloud Animation state.
-- [ ] **Drag & Drop**: Manual override of AI choices.
+- [x] **Suggestion Cards**: UI implemented.
+- [x] **Gamification Logic**: Cloud state linked to task count.
+- [x] **Drag & Drop**: Calendar drag enabled.
 
 ### integration-testing
 - [ ] **E2E Tests**: Full flow from "Add Task" -> "AI Suggestion" -> "GCal Sync".

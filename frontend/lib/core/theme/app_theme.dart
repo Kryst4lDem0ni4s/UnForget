@@ -22,13 +22,12 @@ class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: skyBlueLight, // Baby blue background
+      scaffoldBackgroundColor: skyBlueLight,
       colorScheme: ColorScheme.fromSeed(
         seedColor: skyBlue,
         primary: skyBlue,
         secondary: stormGrey,
         surface: sweetWhite,
-        background: skyBlueLight,
         error: const Color(0xFFEF5350),
       ),
       textTheme: _buildTextTheme(),
