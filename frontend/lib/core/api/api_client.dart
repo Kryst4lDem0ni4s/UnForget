@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'api_client.g.dart';
 
 @riverpod
-Dio apiClient(ApiClientRef ref) async {
+Dio apiClient(ApiClientRef ref) {
   final options = BaseOptions(
     baseUrl: 'http://localhost:8000/api/v1',
     connectTimeout: const Duration(seconds: 10),
@@ -13,7 +13,6 @@ Dio apiClient(ApiClientRef ref) async {
   );
   final dio = Dio(options);
   
-  // Add auth interceptor
   dio.interceptors.add(InterceptorsWrapper(
     onRequest: (options, handler) async {
       final prefs = await SharedPreferences.getInstance();

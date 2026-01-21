@@ -1,15 +1,24 @@
 
 from typing import Optional
+from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+import jwt
 
 from app.api.deps import get_db
 from app import crud
 
-# Simple bearer token security for MVP
 security = HTTPBearer()
+
+SECRET_KEY = "dev-secret-key-change-in-production"
+
+def create_access_token(subject: str) -> str:
+    """Create JWT token for MVP."""
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode = {"sub": subject, "exp": expire}
+    return jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
 
 # Mock auth for MVP - Replace with Firebase Admin SDK in production
 async def get_current_user_id(
