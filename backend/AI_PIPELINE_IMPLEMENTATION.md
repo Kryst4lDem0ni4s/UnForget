@@ -124,19 +124,16 @@ Since LLMs can take 10s-60s, we **cannot** block the HTTP request.
 *   ✅ Mock LLM & Calendar.
 *   ✅ Synchronous endpoints (Needs refactor).
 
-### Phase 2: Persistence & Async (Next Priority)
-*   [ ] **Action**: Switch LangGraph to use `AsyncSqliteSaver`.
-*   [ ] **Action**: Refactor API to be Thread-ID based (Async).
-*   [ ] **Action**: Update `state.py` to use Pydantic.
+### Phase 2: Persistence & Async (Completed)
+*   ✅ **Action**: Switch LangGraph to use `AsyncSqliteSaver`.
+*   ✅ **Action**: Refactor API to be Thread-ID based (Async).
+*   ✅ **Action**: Update `state.py` to use Pydantic.
+*   ✅ **Verification**: Logic verified via `tests/manual_logic_test.py`.
 
-### Phase 3: Intelligence Injection (Ollama Integration)
+### Phase 3: Intelligence Injection (Ollama Integration) (In Progress)
 *   [ ] **Action**: Install Ollama locally (`ollama pull llama3`).
-*   [ ] **Action**: Replace `MockLLM` with `ChatOllama` from `langchain_community`.
-    ```python
-    from langchain_community.chat_models import ChatOllama
-    llm = ChatOllama(model="llama3", base_url="http://localhost:11434")
-    ```
-*   [ ] **Action**: Connect `GoogleCalendarService` to the Graph Tools.
+*   ✅ **Action**: Replace `MockLLM` with `ChatOllama` (Implemented in `llm_factory`).
+*   ✅ **Action**: Connect `GoogleCalendarService` to the Graph Tools (Implemented in `tools.py` & `nodes/execute.py`).
 
 ### Phase 4: Production Harden
 *   [ ] **Action**: Redis for caching calendar reads.

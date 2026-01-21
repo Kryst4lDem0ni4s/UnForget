@@ -16,8 +16,34 @@ class MockLLM:
                 "suggested_tags": ["work", "analysis"],
                 "reasoning": "Based on task complexity, estimated 60 minutes (Mock Analysis)"
             })
+        elif "scheduling options" in str(prompt).lower() or "scheduler" in str(prompt).lower():
+             content = json.dumps({
+                "options": [
+                    {
+                        "option_number": 1,
+                        "start_time": "2026-01-22T10:00:00",
+                        "end_time": "2026-01-22T11:00:00",
+                        "reasoning": "Next available slot",
+                        "impact": "None"
+                    },
+                    {
+                        "option_number": 2,
+                        "start_time": "2026-01-23T09:00:00",
+                        "end_time": "2026-01-23T10:00:00",
+                        "reasoning": "Morning focus time",
+                        "impact": "None"
+                    },
+                    {
+                        "option_number": 3,
+                        "start_time": "2026-01-23T14:00:00",
+                        "end_time": "2026-01-23T15:00:00",
+                        "reasoning": "Afternoon slot",
+                        "impact": "None"
+                    }
+                ]
+            })
         else:
-            content = "Mock response"
+            content = json.dumps({"reasoning": "Mock response"})
             
         return MockResponse(content)
 
@@ -30,7 +56,19 @@ def get_llm(temperature: float = 0):
     try:
         from langchain_community.chat_models import ChatOllama
         # Check if we should use Ollama (e.g. by checking if it's reachable or just default)
-        # For now, we default to it if import works, assuming user followed instructions.
+        
+        # Check if Ollama is actually reachable (quick check not implemented here to avoid lag, assumming try/catch invoke works)
+        # But we can assume if the module imports, we try it. 
+        # Ideally we'd ping localhost:11434 but let's trust the user or failback on runtime error if feasible, 
+        # or simplified:
+        
+        # Only use Ollama if env var is set or we want to force it. 
+        # For now, let's look for an explicit flag or default to Mock to avoid "Connection refused" errors slowing down dev 
+        # unless user explicitly asked for Ollama testing. 
+        
+        # User asked: "testing the ollama based functionality"
+        # So we SHOULD try Ollama.
+        
         llm = ChatOllama(
             model="llama3",
             base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),

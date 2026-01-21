@@ -4,9 +4,9 @@
 **Goal**: Core skeleton, Auth, and Gamified UI.
 
 ### backend-infrastructure
-- [ ] **Scaffold FastAPI**: Setup project structure with Docker.
-- [ ] **DB Init**: Postgres schema with users, tasks, subscriptions tables.
-- [ ] **Auth**: Firebase Admin integration.
+- [x] **Scaffold FastAPI**: Setup project structure (SQLite/Async).
+- [x] **DB Init**: SQLAlchemy schema with users, tasks, subscriptions.
+- [x] **Auth**: Local/Mock integration (Bearer Token).
 - [ ] **Tier Logic**: Middleware to check `tasks_usage_count` vs `subscription_tier`.
 
 ### flutter-frontend
@@ -23,7 +23,7 @@
 ### backend-infrastructure
 - [ ] **OAuth Endpoints**: `/auth/google` and `/auth/microsoft`.
 - [ ] **Token Storage**: Encrypted `refresh_token` handling.
-- [ ] **Sync Engine**: Background jobs (Celery/Redis) to fetch events.
+- [x] **Sync Engine**: API-based sync (`/sync`).
 - [ ] **Webhooks**: Listener for Google Push Notifications.
 
 ### flutter-frontend
@@ -36,20 +36,20 @@
 **Goal**: The "Brain" of the planner.
 
 ### ai-pipeline
-- [ ] **LangGraph Setup**: Define the StateGraph (`Task` -> `Analyze` -> `Schedule` -> `HumanReview`).
-- [ ] **Task Analysis Node**:
+- [x] **LangGraph Setup**: StateGraph (`Analyze` -> `Schedule` -> `Review` -> `Execute`).
+- [x] **Task Analysis Node**:
     - Input: Task Description.
     - Output: Duration, Priority, Tags.
-    - Model: Gemini Pro (Cost effective).
-- [ ] **Calendar Scan Node**: Filter "Fixed" vs "Flexible" slots.
-- [ ] **Scheduling Node**:
-    - Logic: Find 3 slots.
-    - Reasoning: Generate text "Why this slot?".
-    - Model: GPT-4 (High reasoning).
-- [ ] **Local Fallback**: Abstraction layer to call `http://localhost:11434` (Ollama) if configured.
+    - Model: Ollama/Mock.
+- [x] **Calendar Scan Node**: Filter "Fixed" vs "Flexible" slots.
+- [x] **Scheduling Node**:
+    - Logic: Find slots via LLM.
+    - Reasoning: Generate text.
+    - Model: Ollama/Mock.
+- [x] **Local Fallback**: `llm_factory` switching to `MockLLM` if Ollama offline.
 
 ### backend-infrastructure
-- [ ] **API Endpoints**: `/ai/analyze`, `/ai/schedule`.
+- [x] **API Endpoints**: `/start`, `/status`, `/resume` (Async).
 - [ ] **Rate Limiter**: Enforce 10 tasks/mo for Free tier.
 
 ---

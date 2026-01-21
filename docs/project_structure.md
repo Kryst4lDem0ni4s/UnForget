@@ -6,25 +6,19 @@ This document defines the exact file organization for the AI Planner MVP. We uti
 /
 ├── .antigravity/                 # Agent configuration
 ├── .github/                      # CI/CD workflows
-├── apps/
-│   ├── mobile/                   # Flutter App (Android/iOS)
-│   │   ├── lib/
-│   │   │   ├── core/             # Shared utilities, theme, constants
-│   │   │   ├── features/         # Feature-first modules
-│   │   │   │   ├── auth/         # Login screens, providers
-│   │   │   │   ├── calendar/     # Calendar widget, riverpod providers
-│   │   │   │   ├── tasks/        # Task list, add task form
-│   │   │   │   ├── gamification/ # Cloud rendering logic
-│   │   │   │   └── ai_assistant/ # Suggestion cards UI
-│   │   │   ├── services/         # API Clients (Dio)
-│   │   │   └── main.dart         # Entry point
-│   │   ├── assets/               # Lottie files, images
-│   │   └── pubspec.yaml
-│   │
-│   └── desktop/                  # (Optional) Separated desktop logic or symlink to mobile
-│       └── sidecar/              # Local Python Agent (Ollama bridge)
-│           ├── main.py
-│           └── requirements.txt
+├── frontend/                     # Flutter App (Android/iOS)
+│   ├── lib/
+│   │   ├── core/             # Shared utilities, theme, constants
+│   │   ├── features/         # Feature-first modules
+│   │   │   ├── auth/         # Login screens, providers
+│   │   │   ├── calendar/     # Calendar widget, riverpod providers
+│   │   │   ├── tasks/        # Task list, add task form
+│   │   │   ├── gamification/ # Cloud rendering logic
+│   │   │   └── ai_assistant/ # Suggestion cards UI
+│   │   ├── services/         # API Clients (Dio)
+│   │   └── main.dart         # Entry point
+│   ├── assets/               # Lottie files, images
+│   └── pubspec.yaml
 │
 ├── backend/                      # FastAPI Modular Monolith
 │   ├── app/

@@ -1,9 +1,17 @@
 import json
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Any
+from pathlib import Path
+import yaml
 
 from app.services.ai_pipeline.state import TaskAnalysisState
-from app.services.ai_pipeline.nodes.analyze import load_prompts, MockLLM
+from app.services.ai_pipeline.llm_factory import get_llm
+
+def load_prompts() -> Dict[str, Any]:
+    """Load prompt templates from YAML."""
+    prompt_file = Path(__file__).parent.parent / "prompts" / "templates.yaml"
+    with open(prompt_file, 'r') as f:
+        return yaml.safe_load(f)
 
 PROMPTS = load_prompts()
 
@@ -21,65 +29,78 @@ def format_calendar_summary(events: List[dict]) -> str:
     
     return "\n".join(summary_lines)
 
-async def schedule_task(state: TaskAnalysisState) -> TaskAnalysisState:
+async def schedule_task(state: TaskAnalysisState) -> dict:
     """
-    Find optimal scheduling slots for the task.
-    
-    This node:
-    1. Analyzes user's calendar
-    2. Considers task duration and priority
-    3. Generates 3 scheduling options with reasoning
+    Find optimal scheduling slots for the task using LLM.
     """
     
     # Get calendar events
-    calendar_events = state.get('calendar_events', [])
+    calendar_events = state.calendar_events
     calendar_summary = format_calendar_summary(calendar_events)
     
     # Build prompt
     prompt_config = PROMPTS['scheduling']
     system_prompt = prompt_config['system']
     user_prompt = prompt_config['user_template'].format(
-        title=state['title'],
-        duration_minutes=state.get('estimated_duration_minutes', 30),
-        priority=state.get('priority', 'medium'),
-        deadline=state.get('deadline', 'No deadline'),
-        context_notes=state.get('context_notes', 'No context'),
+        title=state.title,
+        duration_minutes=state.estimated_duration_minutes or 30,
+        priority=state.priority,
+        deadline=state.deadline or 'No deadline',
+        context_notes=state.context_notes or 'No context',
         calendar_summary=calendar_summary,
-        work_hours="9 AM - 6 PM",  # TODO: Get from user preferences
-        focus_preference="Morning"  # TODO: Get from user preferences
+        work_hours="9 AM - 6 PM", 
+        focus_preference="Morning"
     )
     
-    # Use mock LLM
-    llm = MockLLM()
-    full_prompt = f"{system_prompt}\n\n{user_prompt}"
+    # Get LLM (Ollama or Mock)
+    llm = get_llm(temperature=0)
     
-    # Generate scheduling options
-    # For MVP, use simple heuristic
-    now = datetime.now()
-    options = [
-        {
+    # Invoke
+    try:
+        from langchain_core.messages import SystemMessage, HumanMessage
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt)
+        ]
+        response = llm.invoke(messages)
+        content = response.content
+    except Exception as e:
+        print(f"LLM Invoke failed: {e}. Falling back to Mock.")
+        from app.services.ai_pipeline.llm_factory import MockLLM
+        llm = MockLLM()
+        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+        response = llm.invoke(full_prompt)
+        content = response.content
+    
+    # Clean up content
+    content = str(content).strip()
+    if content.startswith("```json"):
+        content = content[7:]
+    if content.startswith("```"):
+        content = content[3:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+
+    # Parse JSON
+    try:
+        result = json.loads(content)
+        options = result.get('options', [])
+        # Ensure we have valid structure if LLM hallucinates
+        if not options:
+             raise ValueError("No options returned")
+             
+        return {"scheduling_options": options}
+        
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"JSON Error in scheduling: {e}. Content: {content}")
+        # Fallback to current time
+        now = datetime.now()
+        fallback_option = {
             "option_number": 1,
             "start_time": (now + timedelta(hours=1)).isoformat(),
-            "end_time": (now + timedelta(hours=1) + timedelta(minutes=state.get('estimated_duration_minutes', 30))).isoformat(),
-            "reasoning": "Next available slot in your calendar",
-            "impact": "None - no conflicts detected"
-        },
-        {
-            "option_number": 2,
-            "start_time": (now + timedelta(days=1, hours=9)).isoformat(),
-            "end_time": (now + timedelta(days=1, hours=9) + timedelta(minutes=state.get('estimated_duration_minutes', 30))).isoformat(),
-            "reasoning": "Tomorrow morning during peak focus hours",
-            "impact": "Postpones less critical tasks"
-        },
-        {
-            "option_number": 3,
-            "start_time": (now + timedelta(hours=4)).isoformat(),
-            "end_time": (now + timedelta(hours=4) + timedelta(minutes=state.get('estimated_duration_minutes', 30))).isoformat(),
-            "reasoning": "Later today after current commitments",
-            "impact": "May extend work day slightly"
+            "end_time": (now + timedelta(hours=2)).isoformat(),
+            "reasoning": f"Fallback: Error parsing AI ({str(e)})",
+            "impact": "Unknown"
         }
-    ]
-    
-    state['scheduling_options'] = options
-    
-    return state
+        return {"scheduling_options": [fallback_option]}

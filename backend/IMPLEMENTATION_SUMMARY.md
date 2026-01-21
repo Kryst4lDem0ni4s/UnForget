@@ -21,7 +21,7 @@
 **Key Implementation Detail**:
 - Models use `String` primary keys instead of `UUID` objects to ensure compatibility with SQLite/Aiosqlite while maintaining UUID format across the application.
 
-### 3. AI Pipeline (LangGraph)
+**3. AI Pipeline (LangGraph) - Hybrid Architecture**
 **Workflow**:
 ```
 Task Input → analyze_task → schedule_task → Output
@@ -29,10 +29,11 @@ Task Input → analyze_task → schedule_task → Output
 
 **Components**:
 - **State Management**: TypedDict-based workflow state
-- **Analyze Node**: Estimates duration, suggests tags
-- **Schedule Node**: Generates 3 scheduling options
-- **Prompt Templates**: YAML-based, easily customizable
-- **Mock LLM**: For testing without API costs
+- **Nodes**:
+  - `analyze_task`: Uses **Ollama** (Llama 3) if available, falls back to **MockLLM**
+  - `schedule_task`: Generates 3 options using CoT reasoning
+- **LLM Factory**: `llm_factory.py` manages auto-switching between Local/Mock/Cloud LLMs
+- **Prompts**: Strict JSON templates for reliable parsing
 
 **Features**:
 - Async processing ready
