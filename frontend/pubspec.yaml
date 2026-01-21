@@ -41,6 +41,7 @@ dependencies:
   google_fonts: ^6.3.2
   flutter_animate: ^4.5.2
   syncfusion_flutter_calendar: ^31.1.19
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

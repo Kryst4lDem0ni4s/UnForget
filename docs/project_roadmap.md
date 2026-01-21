@@ -10,10 +10,10 @@
 - [ ] **Tier Logic**: Middleware to check `tasks_usage_count` vs `subscription_tier`.
 
 ### flutter-frontend
-- [ ] **Project Setup**: `flutter create`, add `riverpod`, `go_router`.
-- [ ] **Cloud UI**: Implement `CustomPainter` for "Clear Sky" vs "Thunder" states.
-- [ ] **Responsive Layout**: Sidebar for Desktop, BottomNav for Mobile.
-- [ ] **Task Entry**: Form with "Context" and "AI Enhanced" fields (disabled for now).
+- [x] **Project Setup**: `flutter create`, add `riverpod`, `go_router`.
+- [x] **Cloud UI**: Implement `CloudWidget` (Gamified Element).
+- [x] **Responsive Layout**: Sidebar (Desktop) / Drawer (Mobile) + BottomNav support.
+- [x] **Task Entry**: Form with "Context" and "AI Enhanced" fields.
 
 ---
 
@@ -27,7 +27,7 @@
 - [ ] **Webhooks**: Listener for Google Push Notifications.
 
 ### flutter-frontend
-- [ ] **Calendar Widget**: Integrate `syncfusion_flutter_calendar`.
+- [x] **Calendar Widget**: Integrate `syncfusion_flutter_calendar`.
 - [ ] **Sync visualizer**: Show "Syncing..." status.
 
 ---
@@ -58,7 +58,7 @@
 **Goal**: Seamless User Experience.
 
 ### flutter-frontend
-- [ ] **Suggestion Cards**: UI for the 3 AI options (Accept/Reject).
+- [x] **Suggestion Cards**: UI for the 3 AI options (Accept/Reject).
 - [ ] **Gamification Logic**: Link Task Completion -> Cloud Animation state.
 - [ ] **Drag & Drop**: Manual override of AI choices.
 

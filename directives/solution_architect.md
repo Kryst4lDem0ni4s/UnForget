@@ -9,6 +9,8 @@ Do not overengineer solutions and your approach should not be overkill. Large an
 
 We are building for gradual scaling. Check for and remove all overengineering, replace it with a more consistent and productive appraoch wherever necessary. 
 
+Minimize token usage by avoiding unnecessary content formation, focus on work.
+
 ## Responsibilities
 - Define the folder structure and architectural patterns.
 - Create API specifications (OpenAPI 3.0).

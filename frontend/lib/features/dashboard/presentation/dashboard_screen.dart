@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../gamification/presentation/cloud_widget.dart';
+import '../../gamification/data/gamification_provider.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  // Gamification State (Mock)
-  CloudState _currentCloudState = CloudState.clear;
-  int _tasksPending = 0;
-
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  // Intead of local state, we watch the provider
+  
   @override
   Widget build(BuildContext context) {
+    final cloudStateAsync = ref.watch(cloudStateProvider);
+    final cloudState = cloudStateAsync.valueOrNull ?? CloudState.clear;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('SkyPlan'),
@@ -55,10 +58,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
              child: Column(
                mainAxisAlignment: MainAxisAlignment.center,
                children: [
-                 CloudWidget(state: _currentCloudState, size: 300),
+                 CloudWidget(state: cloudState, size: 300),
                  const SizedBox(height: 20),
                  Text(
-                   _tasksPending == 0 ? "Clear Skies" : "Tasks Approaching",
+                   cloudState == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
                    style: Theme.of(context).textTheme.headlineMedium,
                  ),
                ],
@@ -96,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CloudWidget(state: _currentCloudState, size: 200),
+          CloudWidget(state: cloudState, size: 200),
           const SizedBox(height: 32),
           Text(
             "Your Day is Clear",
@@ -149,7 +152,7 @@ class _AppDrawer extends StatelessWidget {
             title: const Text('Calendar Schedule'),
             onTap: () {
                context.pop();
-               // context.go('/calendar'); // TODO
+               context.go('/calendar');
             },
           ),
           ListTile(
@@ -157,7 +160,7 @@ class _AppDrawer extends StatelessWidget {
             title: const Text('To-Do List'),
             onTap: () {
                context.pop();
-               // context.go('/tasks'); // TODO
+               context.go('/tasks');
             },
           ),
           const Divider(),

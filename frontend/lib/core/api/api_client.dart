@@ -1,15 +1,29 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'api_client.g.dart';
 
 @riverpod
-Dio apiClient(ApiClientRef ref) {
+Dio apiClient(ApiClientRef ref) async {
   final options = BaseOptions(
-    // Use localhost for desktop/web. For Emulator use 10.0.2.2
     baseUrl: 'http://localhost:8000/api/v1',
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   );
-  return Dio(options);
+  final dio = Dio(options);
+  
+  // Add auth interceptor
+  dio.interceptors.add(InterceptorsWrapper(
+    onRequest: (options, handler) async {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+      handler.next(options);
+    },
+  ));
+  
+  return dio;
 }

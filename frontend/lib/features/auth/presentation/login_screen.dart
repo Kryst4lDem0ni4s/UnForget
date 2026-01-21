@@ -1,13 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/auth_repository.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authRepositoryProvider).login(
+        _emailController.text,
+        _passwordController.text,
+      );
+      if (mounted) context.go('/');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -51,15 +88,17 @@ class LoginScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
                             labelText: 'Email',
                             prefixIcon: Icon(Icons.cloud_queue),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: _passwordController,
+                          decoration: const InputDecoration(
                             labelText: 'Password',
                             prefixIcon: Icon(Icons.lock_outline),
                           ),
@@ -70,10 +109,8 @@ class LoginScreen extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              context.go('/');
-                            },
-                            child: const Text('Float In'),
+                            onPressed: _isLoading ? null : _login,
+                            child: Text(_isLoading ? 'Floating...' : 'Float In'),
                           ),
                         ),
                       ],

@@ -17,6 +17,8 @@ class SmartCalendar extends StatelessWidget {
       view: CalendarView.week,
       controller: controller, // Allows programmatic navigation
       dataSource: Source(appointments),
+      allowDragAndDrop: true,
+      allowAppointmentResize: true,
       
       // Aesthetics ("Sleek")
       backgroundColor: Colors.white,
