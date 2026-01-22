@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../gamification/presentation/cloud_widget.dart';
-import '../../tasks/presentation/add_task_dialog.dart';
+import 'package:ai_planner/features/tasks/presentation/add_task_dialog.dart';
 
 class AddTaskButton extends ConsumerWidget {
   final bool isMobile;
@@ -65,8 +65,7 @@ class AddTaskButton extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                FilledButton.icon( // Modern button
-                FilledButton.icon( // Modern button
+                FilledButton.icon( 
                     onPressed: () => showDialog(
                       context: context,
                       builder: (context) => const AddTaskDialog(),

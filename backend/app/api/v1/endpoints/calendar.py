@@ -1,64 +1,34 @@
-from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel
-from datetime import datetime
-
-from app import crud, models, schemas
+from sqlalchemy.orm import Session
+from typing import List, Any
 from app.api import deps
-from app.core import security
+from app.models.task import Task
+from app.schemas.task import Task as TaskSchema
 
 router = APIRouter()
 
-class CalendarSyncRequest(BaseModel):
-    """Request to sync calendar."""
-    provider: str  # 'google' or 'microsoft'
-
-class CalendarSyncResponse(BaseModel):
-    """Response from calendar sync."""
-    events_synced: int
-    status: str
-
-@router.post("/sync", response_model=CalendarSyncResponse)
-async def sync_calendar(
-    *,
-    db: AsyncSession = Depends(deps.get_db),
-    request: CalendarSyncRequest,
-    current_user: models.User = Depends(security.get_current_user),
-) -> Any:
-    """
-    Sync user's calendar with external provider.
-    
-    This endpoint:
-    1. Fetches events from Google/Microsoft
-    2. Updates local calendar_events cache
-    3. Returns sync status
-    """
-    
-    # TODO: Implement actual sync logic
-    # For MVP, return mock response
-    
-    if request.provider not in ['google', 'microsoft']:
-        raise HTTPException(status_code=400, detail="Invalid provider")
-    
-    # Mock response
-    return CalendarSyncResponse(
-        events_synced=0,
-        status=f"{request.provider} sync not yet implemented - coming soon"
-    )
-
-@router.get("/events", response_model=List[schemas.Event])
-async def list_calendar_events(
-    *,
-    db: AsyncSession = Depends(deps.get_db),
-    current_user: models.User = Depends(security.get_current_user),
+@router.get("/events", response_model=List[Any])
+def get_calendar_events(
+    db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-) -> Any:
+):
     """
-    List user's calendar events.
+    Retrieve tasks that have a deadline, formatted as calendar events.
     """
-    # TODO: Implement fetching from calendar_events table
-    # For MVP, return empty list
+    # For MVP, we treat tasks with deadlines as events.
+    # In future, we can have a separate 'Event' model.
+    tasks = db.query(Task).filter(Task.deadline != None).offset(skip).limit(limit).all()
     
-    return []
+    events = []
+    for task in tasks:
+        events.append({
+            "id": str(task.id),
+            "title": task.title,
+            "start": task.deadline, # Assuming deadline is the start time for simple tasks
+            "end": task.deadline,   # Duration 0 for point-in-time tasks
+            "type": "task_deadline",
+            "priority": task.priority
+        })
+        
+    return events

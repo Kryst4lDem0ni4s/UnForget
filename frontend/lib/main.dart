@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/gamification/data/streak_repository.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -12,7 +14,15 @@ void main() {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-  runApp(const ProviderScope(child: AIPlannerApp()));
+  
+  final prefs = await SharedPreferences.getInstance();
+  
+  runApp(ProviderScope(
+    overrides: [
+      streakRepositoryProvider.overrideWithValue(StreakRepository(prefs)),
+    ],
+    child: const AIPlannerApp()
+  ));
 }
 
 class AIPlannerApp extends ConsumerWidget {

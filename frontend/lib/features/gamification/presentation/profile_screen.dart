@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../tasks/data/task_repository.dart';
+import '../data/streak_repository.dart';
 import 'widgets/adventurer_avatar.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -22,7 +23,11 @@ class ProfileScreen extends ConsumerWidget {
     
     String title = "Novice Walker";
     if (level > 2) title = "Cloud Surfer";
+    if (level > 2) title = "Cloud Surfer";
     if (level > 5) title = "Sky Captain";
+
+    final streakAsync = ref.watch(currentStreakProvider);
+    final streak = streakAsync.value ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -88,7 +93,28 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   _StatTile(label: "TOTAL XP", value: "$xp", color: Colors.purple),
                   _StatTile(label: "LOG", value: "$completedTasks/$totalTasks", color: Colors.orange),
+                  _StatTile(label: "REFRESH", value: "$streak", color: Colors.red), // Streak
                   _StatTile(label: "RANK", value: "$level", color: Colors.blue),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Inventory Grid
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("INVENTORY", style: GoogleFonts.pressStart2p(fontSize: 12, color: Colors.grey)),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _InventoryItem(icon: Icons.explore, label: "Compass", unlockLevel: 2, currentLevel: level),
+                      _InventoryItem(icon: Icons.air, label: "Wind Cloak", unlockLevel: 5, currentLevel: level),
+                      _InventoryItem(icon: Icons.flash_on, label: "Sword", unlockLevel: 10, currentLevel: level),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -119,6 +145,52 @@ class _StatTile extends StatelessWidget {
           value,
           style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+      ],
+    );
+  }
+}
+
+class _InventoryItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int unlockLevel;
+  final int currentLevel;
+
+  const _InventoryItem({required this.icon, required this.label, required this.unlockLevel, required this.currentLevel});
+
+  @override
+  Widget build(BuildContext context) {
+    final isUnlocked = currentLevel >= unlockLevel;
+    return Column(
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: isUnlocked ? Colors.blue.shade50 : Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isUnlocked ? Colors.blue : Colors.grey.shade400,
+              width: 2,
+            ),
+          ),
+          child: Icon(
+            isUnlocked ? icon : Icons.lock,
+            color: isUnlocked ? Colors.blue : Colors.grey,
+            size: 32,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 12,
+            fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
+            color: isUnlocked ? Colors.black : Colors.grey,
+          ),
+        ),
+        if (!isUnlocked)
+          Text("Lvl $unlockLevel", style: const TextStyle(fontSize: 10, color: Colors.red)),
       ],
     );
   }

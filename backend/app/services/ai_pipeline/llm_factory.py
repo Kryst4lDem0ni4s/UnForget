@@ -50,36 +50,29 @@ class MockLLM:
 def get_llm(temperature: float = 0):
     """
     Get the LLM instance based on configuration.
-    Prioritizes Ollama (local) logic if available.
+    Prioritizes Ollama (local) logic.
     """
-    # 1. Try Ollama (MVP Goal)
     try:
         from langchain_community.chat_models import ChatOllama
-        # Check if we should use Ollama (e.g. by checking if it's reachable or just default)
         
-        # Check if Ollama is actually reachable (quick check not implemented here to avoid lag, assumming try/catch invoke works)
-        # But we can assume if the module imports, we try it. 
-        # Ideally we'd ping localhost:11434 but let's trust the user or failback on runtime error if feasible, 
-        # or simplified:
+        # User confirmed Ollama is served.
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        # Detected 'deepseek-r1:7b' via `ollama list`
+        model = os.getenv("OLLAMA_MODEL", "deepseek-r1:7b")
         
-        # Only use Ollama if env var is set or we want to force it. 
-        # For now, let's look for an explicit flag or default to Mock to avoid "Connection refused" errors slowing down dev 
-        # unless user explicitly asked for Ollama testing. 
-        
-        # User asked: "testing the ollama based functionality"
-        # So we SHOULD try Ollama.
+        print(f"Connecting to Ollama at {base_url} with model {model}...")
         
         llm = ChatOllama(
-            model="llama3",
-            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            model=model,
+            base_url=base_url,
             temperature=temperature
         )
         return llm
     except ImportError:
-        pass
+        print("langchain_community not installed. Falling back to Mock.")
     except Exception as e:
         print(f"Ollama init failed: {e}")
 
-    # 2. Fallback to MockLLM
-    print("Using MockLLM (Ollama not found or configured)")
+    # Fallback to MockLLM
+    print("Using MockLLM (Ollama connection failed or library missing)")
     return MockLLM()
