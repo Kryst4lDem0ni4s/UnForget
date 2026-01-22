@@ -10,8 +10,9 @@ class CalendarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(calendarEventsProvider);
 
+    // Using Scaffold with transparent background and no AppBar to allow parent Shell title to show
     return Scaffold(
-      appBar: AppBar(title: const Text('Schedule')),
+      backgroundColor: Colors.transparent,
       body: eventsAsync.when(
         data: (events) {
           return SfCalendar(

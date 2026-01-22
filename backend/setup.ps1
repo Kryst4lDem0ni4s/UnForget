@@ -6,9 +6,9 @@ Write-Host "AI Planner Backend Setup" -ForegroundColor Cyan
 Write-Host "`nChecking Python installation..." -ForegroundColor Yellow
 $pythonVersion = python --version 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✓ Python found: $pythonVersion" -ForegroundColor Green
+    Write-Host " Python found: $pythonVersion" -ForegroundColor Green
 } else {
-    Write-Host "✗ Python not found. Please install Python 3.11+" -ForegroundColor Red
+    Write-Host " Python not found. Please install Python 3.11+" -ForegroundColor Red
     exit 1
 }
 
@@ -18,7 +18,7 @@ if (Test-Path "venv") {
     Write-Host "Virtual environment already exists" -ForegroundColor Gray
 } else {
     python -m venv venv
-    Write-Host "✓ Virtual environment created" -ForegroundColor Green
+    Write-Host " Virtual environment created" -ForegroundColor Green
 }
 
 # Activate virtual environment
@@ -33,12 +33,12 @@ pip install -r requirements.txt
 if (-not (Test-Path ".env")) {
     Write-Host "`nCreating .env file..." -ForegroundColor Yellow
     Copy-Item ".env.example" ".env"
-    Write-Host "✓ .env created. Please update with your database credentials" -ForegroundColor Green
+    Write-Host " .env created. Please update with your database credentials" -ForegroundColor Green
 } else {
     Write-Host ".env already exists" -ForegroundColor Gray
 }
 
-Write-Host "`n✓ Setup complete!" -ForegroundColor Green
+Write-Host "`n Setup complete!" -ForegroundColor Green
 Write-Host "`nNext steps:" -ForegroundColor Cyan
 Write-Host "1. Update .env with your database credentials"
 Write-Host "2. Create the database: CREATE DATABASE aiplanner;"

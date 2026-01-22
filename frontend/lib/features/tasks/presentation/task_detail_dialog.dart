@@ -55,10 +55,19 @@ class TaskDetailDialog extends ConsumerWidget {
                    icon: const Icon(Icons.delete, color: Colors.red),
                    label: const Text("Remove", style: TextStyle(color: Colors.red)),
                    onPressed: () async {
-                      // Delete logic (Mock)
-                      // await ref.read(taskRepositoryProvider).deleteTask(task.id);
-                      context.pop();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Task Removed")));
+                      try {
+                        await ref.read(taskRepositoryProvider).deleteTask(task.id);
+                        if (context.mounted) {
+                          context.pop();
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Task Removed")));
+                          // Force refresh of task list
+                          ref.invalidate(taskListProvider);
+                        }
+                      } catch (e) {
+                         if (context.mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                         }
+                      }
                    },
                  ),
                  const SizedBox(width: 8),
@@ -67,10 +76,25 @@ class TaskDetailDialog extends ConsumerWidget {
                      icon: const Icon(Icons.check),
                      label: const Text("Complete"),
                      onPressed: () async {
-                        // Complete logic
-                        // await ref.read(taskRepositoryProvider).updateTask(task.copyWith(status: 'completed'));
-                        context.pop();
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Task Completed! +10 XP")));
+                        try {
+                          final updatedTask = task.copyWith(status: 'completed');
+                          await ref.read(taskRepositoryProvider).updateTask(updatedTask);
+                          if (context.mounted) {
+                            context.pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Task Completed! +10 XP"), 
+                                backgroundColor: Colors.green
+                              )
+                            );
+                            // Force refresh
+                            ref.invalidate(taskListProvider);
+                          }
+                        } catch (e) {
+                           if (context.mounted) {
+                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                           }
+                        }
                      },
                    ),
                ],

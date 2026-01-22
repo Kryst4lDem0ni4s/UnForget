@@ -2,8 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import settings
-from app.api.v1.api import api_router
+from core.config import settings
+from api.v1.api import api_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -26,3 +26,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=False)

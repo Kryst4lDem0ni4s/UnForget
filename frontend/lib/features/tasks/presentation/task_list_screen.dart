@@ -13,8 +13,22 @@ class TaskListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
      final tasksAsync = ref.watch(taskListProvider);
 
+     // No Scaffold here - relying on ShellRoute's ScaffoldWithDrawer
+     // We just return the body.
+     // However, we need a FAB. The parent Scaffold can't easily switch FABs based on child.
+     // A common pattern with ShellRoute is for the child to use a Scaffold ONLY for FAB/Snackbars
+     // but transparency for AppBar/Drawer.
+     // OR we move the FAB to the dashboard/add-task flow as requested.
+     // User requirement: "A new task should be a small cloud at the center of the screen that can be clicked." on DASHBOARD.
+     // On TaskList, maybe we don't need a FAB if the dashboard is the primary way?
+     // Or we keep it but ensure AppBar isn't duplicated.
+     
+     // Let's use a Scaffold but with backgroundColor transparent and NO AppBar/Drawer
+     // This allows FAB usage without hiding parent AppBar (if we don't define one here).
+     
      return Scaffold(
-       appBar: AppBar(title: const Text('To-Do List')),
+       backgroundColor: Colors.transparent, // Let parent background show
+       // No AppBar - allows parent AppBar to show
        body: tasksAsync.when(
          data: (tasks) {
            if (tasks.isEmpty) {

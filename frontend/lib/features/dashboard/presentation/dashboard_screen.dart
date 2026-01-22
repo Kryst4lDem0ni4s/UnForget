@@ -75,25 +75,79 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildMobileLayout(CloudState state) {
-    return Column(
+    return Stack(
       children: [
-        const SizedBox(height: 40),
-        // Top: Large Cloud
-        CloudWidget(state: state, size: 250),
-        const SizedBox(height: 20),
-        Text(
-           state == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
-           style: Theme.of(context).textTheme.headlineSmall,
+        // Background could be added here
+        
+        Column(
+          children: [
+            const SizedBox(height: 60), // Space for top bar
+            // Top: Large Hero Cloud (Status)
+            Expanded(
+              flex: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Hero(
+                    tag: 'hero_cloud',
+                    child: CloudWidget(state: state, size: 280),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                     state == CloudState.storm ? "Storm Approaching!" : "Clear Skies",
+                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                       fontWeight: FontWeight.bold,
+                       color: state == CloudState.storm ? Colors.red.shade700 : Colors.blue.shade700,
+                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "You're doing great, adventurer!",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey.shade600
+                    ),
+                  )
+                ],
+              ),
+            ),
+            
+            // Center/Bottom area: Action Cloud
+            Expanded(
+              flex: 3,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Tap cloud to plan", style: TextStyle(color: Colors.grey, letterSpacing: 1.2)),
+                    const SizedBox(height: 20),
+                    // The "Small Cloud" interactive button
+                    GestureDetector(
+                      onTap: () => showDialog(
+                        context: context, 
+                        builder: (context) => const AddTaskDialog()
+                      ),
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blue.withOpacity(0.2),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            )
+                          ]
+                        ),
+                        child: const CloudWidget(state: CloudState.clear, size: 100),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        
-        const Spacer(),
-        
-        // Center: Interactive Add Task
-        const Text("Tap to add task", style: TextStyle(color: Colors.grey)),
-        const SizedBox(height: 16),
-        const AddTaskButton(isMobile: true),
-        
-        const Spacer(),
       ],
     );
   }

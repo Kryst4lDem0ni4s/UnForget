@@ -26,8 +26,8 @@ Write-Host "`n=== Running Full Test Suite with Coverage ===" -ForegroundColor Cy
 pytest --cov=app --cov-report=term --cov-report=html -v
 
 Write-Host "`n=== Test Summary ===" -ForegroundColor Green
-Write-Host "✓ Unit tests completed"
-Write-Host "✓ Integration tests completed"
-Write-Host "✓ Coverage report generated (see htmlcov/index.html)"
+Write-Host " Unit tests completed"
+Write-Host " Integration tests completed"
+Write-Host " Coverage report generated (see htmlcov/index.html)"
 Write-Host "`nTo run load tests:"
 Write-Host "  locust -f tests/load/locustfile.py --host=http://localhost:8000" -ForegroundColor Yellow

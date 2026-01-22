@@ -9,10 +9,11 @@ import jwt
 
 from app.api.deps import get_db
 from app import crud
+from app.core.config import settings
 
 security = HTTPBearer()
 
-SECRET_KEY = "dev-secret-key-change-in-production"
+SECRET_KEY = settings.SECRET_KEY
 
 def create_access_token(subject: str) -> str:
     """Create JWT token for MVP."""
@@ -26,24 +27,29 @@ async def get_current_user_id(
 ) -> str:
 
     """
-    Mock authentication - returns a hardcoded user ID.
+    Validate JWT token and extract user ID.
     In production, validate Firebase token and extract user_id.
     """
-    # TODO: Implement Firebase Admin token verification
-    # decoded_token = auth.verify_id_token(credentials.credentials)
-    # user_id = decoded_token['uid']
-    
-    # For MVP, we'll accept any token and return a test user ID
-    # You can pass "test-user" as bearer token
-    if credentials.credentials == "test-user":
-        # Return a fixed UUID for testing
-        return "00000000-0000-0000-0000-000000000001"
-
-    
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid authentication credentials",
-    )
+    try:
+        # Decode JWT token
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+            )
+        return user_id
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+        )
+    except jwt.JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
 
 async def get_current_user(
     db: AsyncSession = Depends(get_db),

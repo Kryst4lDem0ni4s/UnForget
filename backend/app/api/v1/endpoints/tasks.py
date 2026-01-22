@@ -52,3 +52,40 @@ async def read_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+@router.put("/{task_id}", response_model=schemas.Task)
+async def update_task(
+    *,
+    db: AsyncSession = Depends(deps.get_db),
+    task_id: str,
+    task_in: schemas.TaskUpdate,
+    current_user: models.User = Depends(security.get_current_user),
+) -> Any:
+    """
+    Update a task.
+    """
+    task = await crud.task.get(db=db, id=task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    # if task.user_id != current_user.id:
+    #     raise HTTPException(status_code=400, detail="Not enough permissions")
+    task = await crud.task.update(db=db, db_obj=task, obj_in=task_in)
+    return task
+
+@router.delete("/{task_id}", response_model=schemas.Task)
+async def delete_task(
+    *,
+    db: AsyncSession = Depends(deps.get_db),
+    task_id: str,
+    current_user: models.User = Depends(security.get_current_user),
+) -> Any:
+    """
+    Delete a task.
+    """
+    task = await crud.task.get(db=db, id=task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    # if task.user_id != current_user.id:
+    #     raise HTTPException(status_code=400, detail="Not enough permissions")
+    task = await crud.task.remove(db=db, id=task_id)
+    return task

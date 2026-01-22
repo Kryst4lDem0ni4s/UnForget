@@ -30,9 +30,12 @@ class TaskRepository {
     return tasks.where((t) => t.status != 'completed').length;
   }
   
-  // Mock delete/update for now as backend might need full impl
   Future<void> deleteTask(String id) async {
-    // await _dio.delete('/tasks/$id');
+    await _dio.delete('/tasks/$id');
+  }
+
+  Future<void> updateTask(String id, Map<String, dynamic> updates) async {
+    await _dio.put('/tasks/$id', data: updates);
   }
 }
 
