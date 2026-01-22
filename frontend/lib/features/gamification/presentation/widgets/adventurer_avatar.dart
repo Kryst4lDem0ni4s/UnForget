@@ -43,10 +43,15 @@ class _SpriteSheetPainter extends CustomPainter {
 
 // Better Approach for Slicing Asset Image without manually loading bytes:
 class SlicedSprite extends StatelessWidget {
-  final int frameIndex; // 0 to N
+  final int frameIndex;
   final int totalFrames;
   final String assetPath;
   final double size;
+  
+  // Sprite Sheet Configuration
+  final int spriteWidth;
+  final int spriteHeight;
+  final int columns;
 
   const SlicedSprite({
     super.key,
@@ -54,24 +59,48 @@ class SlicedSprite extends StatelessWidget {
     required this.totalFrames,
     this.assetPath = 'assets/ui/pixel_character_kit.png',
     this.size = 150,
+    this.spriteWidth = 32,  // Assumed standard sprite size
+    this.spriteHeight = 32, // Assumed standard sprite size
+    this.columns = 4,       // Assumed 4 columns in sheet
   });
 
   @override
   Widget build(BuildContext context) {
-    // Assuming horizontal strip sprite sheet
-    // If it's a grid, we need rows/cols. 
-    // Let's assume standard "Character Kit" 4x4 or similar.
-    // For MVP, we'll try to show the "Full" image but cropped to a specific region.
-    
+    // Calculate row and column for the current frame
+    final int col = frameIndex % columns;
+    final int row = (frameIndex / columns).floor();
+
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        image: DecorationImage(
-           image: AssetImage(assetPath),
-           fit: BoxFit.none, // Don't scale, keep original pixels
-           alignment: Alignment(-0.5 + (frameIndex * 0.1), 0.0), // Shift alignment to show different part
-           scale: 4.0, // Zoom in to show pixel art clearly
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ClipRect(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: spriteWidth.toDouble(),
+            height: spriteHeight.toDouble(),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: -(col * spriteWidth).toDouble(),
+                  top: -(row * spriteHeight).toDouble(),
+                  child: Image.asset(
+                    assetPath,
+                    // Load the full image, but we only show a window
+                    // This assumes the image is large enough.
+                    // If we knew the total size we could be more precise.
+                    // For now, we rely on the negative positioning to shift the view.
+                    fit: BoxFit.none,
+                    alignment: Alignment.topLeft,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

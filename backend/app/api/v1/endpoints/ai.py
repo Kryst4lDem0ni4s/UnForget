@@ -161,21 +161,49 @@ async def run_resume_background(thread_id: str, selected_option_id: str):
     await app.aupdate_state(config, {"selected_option_id": selected_option_id})
     await app.ainvoke(None, config)
 
+class AIStartRequest(BaseModel):
+    """Request model for starting AI workflow."""
+    task_id: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    task_description: Optional[str] = None  # Frontend compatibility
+
 @router.post("/start", response_model=StartWorkflowResponse)
 async def start_workflow(
     *,
     db: AsyncSession = Depends(deps.get_db),
-    request: AIAnalysisRequest,
+    request: AIStartRequest,
     current_user: models.User = Depends(security.get_current_user),
     background_tasks: BackgroundTasks,
 ) -> Any:
-    """Start async AI workflow."""
-    task = await crud.task.get(db=db, id=request.task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+    """Start async AI workflow. Creates task if not provided."""
     
-    if str(task.user_id) != str(current_user.id):
-        raise HTTPException(status_code=403, detail="Not authorized")
+    task = None
+    
+    # 1. Try to find existing task if ID provided
+    if request.task_id:
+        task = await crud.task.get(db=db, id=request.task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        if str(task.user_id) != str(current_user.id):
+            raise HTTPException(status_code=403, detail="Not authorized")
+            
+    # 2. If no task_id, create a new one from description
+    else:
+        # Handle 'task_description' alias from frontend
+        desc = request.description or request.task_description
+        if not request.title and not desc:
+             raise HTTPException(status_code=400, detail="Must provide task_id OR title/description")
+             
+        title = request.title or (desc[:50] + "..." if desc else "New Task")
+        
+        task_in = schemas.TaskCreate(
+            title=title,
+            description=desc,
+            status="pending",
+            priority="medium"
+        )
+        task = await crud.task.create_with_owner(db=db, obj_in=task_in, owner_id=current_user.id)
     
     # Prepare initial state
     initial_state = {
